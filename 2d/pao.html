@@ -1,0 +1,382 @@
+<!DOCTYPE html>
+<html>
+<header>
+    <meta charset="utf-8">
+	<meta name="description" content="MS-重庆">
+    <meta name="MS-王梧权" content="v-wuwa@microsoft.com">
+    <!-- 引入 ECharts 文件 -->		
+	<script src="js/jquery-2.2.1.min.js"></script>
+    <script src="js/echarts.min.js"></script>
+	<script src="js/china.js"></script>
+	<script src="js/chongqing.js"></script>
+	<script src="js/geoCoordMap.js"></script>
+</header>
+
+<body>
+    <!-- 为ECharts准备一个具备大小（宽高）的Dom -->
+    <div id="main" style="width: 1200px;height:900px;"></div>
+
+<script type="text/javascript">
+    // 基于准备好的dom，初始化echarts实例
+	var myChart = echarts.init(document.getElementById('main'));	
+	
+    var genData = function(){
+		var res = [];
+		for (var areaname in geoCoordMap){
+			res.push({
+				name: areaname,
+				value: 100 + Math.random()*200
+			});
+		}
+		return res;
+	}
+	
+	var data = genData();
+
+	
+	var convertData = function (data) {
+		var res = [];
+		for (var i = 0; i < data.length; i++) {
+			var geoCoord = geoCoordMap[data[i].name];
+			if (geoCoord) {
+				res.push({
+					name: data[i].name,
+					value: geoCoord.concat(data[i].value)
+				});
+			}
+		}
+		return res;
+	};
+
+	option = {
+		backgroundColor: '#404a59',
+		title: {
+			text: '重庆市新年鞭炮声监控',
+			subtext: 'data from MS',
+			sublink: '',
+			left: 'center',
+			textStyle: {
+				color: '#fff'
+			}
+		},
+		tooltip : {
+			trigger: 'item'
+		},
+		legend: {
+			orient: 'vertical',
+			y: 'bottom',
+			x:'right',
+			data:['bianpaosheng'],
+			textStyle: {
+				color: '#fff'
+			}
+		},
+		geo: {
+			map: 'chongqing',
+			label: {
+				emphasis: {
+					show: false
+				}
+			},
+			roam: true,
+			itemStyle: {
+				normal: {
+					areaColor: '#323c48',
+					borderColor: '#111'
+				},
+				emphasis: {
+					areaColor: '#2a333d'
+				}
+			}
+		},
+		series : [
+			{
+				name: 'bianpaosheng',
+				type: 'scatter',
+				coordinateSystem: 'geo',
+				data: convertData(data),
+				symbolSize: function (val) {
+					return val[2] / 10;
+				},
+				label: {
+					normal: {
+						formatter: '{b}',
+						position: 'right',
+						show: false
+					},
+					emphasis: {
+						show: true
+					}
+				},
+				itemStyle: {
+					normal: {
+						color: '#ddb926'
+					}
+				}
+			},
+			{
+				name: 'Top 5',
+				type: 'effectScatter',
+				coordinateSystem: 'geo',
+				data: convertData(data.sort(function (a, b) {
+					return b.value - a.value;
+				}).slice(0, 6)),
+				symbolSize: function (val) {
+					return val[2] / 10;
+				},
+				showEffectOn: 'render',
+				rippleEffect: {
+					brushType: 'stroke'
+				},
+				hoverAnimation: true,
+				label: {
+					normal: {
+						formatter: '{b}',
+						position: 'right',
+						show: true
+					}
+				},
+				itemStyle: {
+					normal: {
+						color: '#f4e925',
+						shadowBlur: 10,
+						shadowColor: '#333'
+					}
+				},
+				zlevel: 1
+			}
+		]
+	};
+	
+	var data1 = genData();
+	var data2 = genData();
+	var data3 = genData();
+	var data4 = genData();
+	var data5 = genData();
+	var data6 = genData();
+	var data7 = genData();
+	var data8 = genData();
+	
+	tloption = {
+        baseOption: {
+            timeline: {
+                autoPlay: true,
+				// currentIndex: 2,
+				playInterval: 2000,
+                data: [
+					'2016-02-07',
+					{
+						value: '2016-02-08',
+						tooltip: {          // 让鼠标悬浮到此项时能够显示 `tooltip`。
+							formatter: '{b} 猴年大吉'
+						},
+						symbol: 'diamond',  // 此项的图形的特别设置。
+						symbolSize: 16      // 此项的图形大小的特别设置。
+					},
+					'2016-02-09',
+					'2016-02-10',					
+					'2016-02-11',
+					'2016-02-12',
+					'2016-02-13',
+					'2016-02-14'
+				]
+            },
+        backgroundColor: '#111111',
+		title: {
+			text: '重庆市新年鞭炮声监控',
+			subtext: 'data from MS',
+			sublink: '',
+			left: 'center',
+			textStyle: {
+				color: '#fff'
+			}
+		},
+		tooltip : {
+			trigger: 'item'
+		},
+		legend: {
+			orient: 'vertical',
+			y: 'bottom',
+			x:'right',
+			data:['鞭炮声','Top 5'],
+			textStyle: {
+				color: '#fff'
+			}
+		},
+		geo: {
+			map: 'chongqing',
+			label: {
+				emphasis: {
+					show: false
+				}
+			},
+			roam: true,
+			itemStyle: {
+				normal: {
+					areaColor: '#323c48',
+					borderColor: '#111'
+				},
+				emphasis: {
+					areaColor: '#2a333d'
+				}
+			}
+		},
+		series : [
+				{
+					name: '鞭炮声',
+					type: 'scatter',
+					coordinateSystem: 'geo',
+				//	data: convertData(data),
+					symbolSize: function (val) {
+						return val[2] / 10;
+					},
+					label: {
+						normal: {
+							formatter: '{b}',
+							position: 'right',
+							show: false
+						},
+						emphasis: {
+							show: true
+						}
+					},
+					itemStyle: {
+						normal: {
+							color: '#ddb926'
+						}
+					}
+				},
+				{
+					name: 'Top 5',
+					type: 'effectScatter',
+					coordinateSystem: 'geo',
+				//	data: convertData(data.sort(function (a, b) {
+				//		return b.value - a.value;
+				//	}).slice(0, 6)),
+					symbolSize: function (val) {
+						return val[2] / 10;
+					},
+					showEffectOn: 'render',
+					rippleEffect: {
+						brushType: 'stroke'
+					},
+					hoverAnimation: true,
+					label: {
+						normal: {
+							formatter: '{b}',
+							position: 'right',
+							show: true
+						}
+					},
+					itemStyle: {
+						normal: {
+							color: '#f4e925',
+							shadowBlur: 10,
+							shadowColor: '#333'
+						}
+					},
+					zlevel: 1
+				}
+			]
+        },
+        options: [
+            { // 这是'2002-01-01' 对应的 option
+                title: {
+                    text: '辞旧迎新，大年三十统计值'
+                },
+                series: [
+                    {data: convertData(data1)}, // 系列一的数据
+					{data: convertData(data1.sort(function (a, b) {
+						return b.value - a.value;
+					}).slice(0, 6))}
+                ]
+            },
+            { // 这是'2003-01-01' 对应的 option
+                title: {
+                    text: '新年快乐，猴年初一统计值'
+                },
+                series: [
+                    {data: convertData(data2)},
+					{data: convertData(data2.sort(function (a, b) {
+						return b.value - a.value;
+					}).slice(0, 6))}
+                ]
+            },
+            { // 这是'2004-01-01' 对应的 option
+                title: {
+                    text: '金猴闹春，猴年初二统计值'
+                },
+                series: [
+                    {data: convertData(data3)},
+					{data: convertData(data3.sort(function (a, b) {
+						return b.value - a.value;
+					}).slice(0, 6))}
+                ]
+            },
+			 { // 这是'2003-01-01' 对应的 option
+                title: {
+                    text: '代代封侯，猴年初三统计值'
+                },
+                series: [
+                    {data: convertData(data4)},
+					{data: convertData(data4.sort(function (a, b) {
+						return b.value - a.value;
+					}).slice(0, 6))}
+                ]
+            },
+			 { // 这是'2003-01-01' 对应的 option
+                title: {
+                    text: '猴猴哈嘿，猴年初四统计值'
+                },
+                series: [
+                    {data: convertData(data5)},
+					{data: convertData(data5.sort(function (a, b) {
+						return b.value - a.value;
+					}).slice(0, 6))}
+                ]
+            },
+			 { // 这是'2003-01-01' 对应的 option
+                title: {
+                    text: '大圣来也，猴年初五统计值'
+                },
+                series: [
+                    {data: convertData(data6)},
+					{data: convertData(data6.sort(function (a, b) {
+						return b.value - a.value;
+					}).slice(0, 6))}
+                ]
+            },
+			 { // 这是'2003-01-01' 对应的 option
+                title: {
+                    text: '喜乐猴年，猴年初六统计值'
+                },
+                series: [
+                    {data: convertData(data7)},
+					{data: convertData(data7.sort(function (a, b) {
+						return b.value - a.value;
+					}).slice(0, 6))}
+                ]
+            },
+			 { // 这是'2003-01-01' 对应的 option
+                title: {
+                    text: '不想上班，猴年初七统计值'
+                },
+                series: [
+                    {data: convertData(data8)},
+					{data: convertData(data8.sort(function (a, b) {
+						return b.value - a.value;
+					}).slice(0, 6))}
+                ]
+            }
+        ]
+    }
+		
+	// 使用刚指定的配置项和数据显示图表。
+        myChart.setOption(tloption);
+		
+    </script>
+
+</body>
+
+
+</html>

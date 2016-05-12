@@ -1,0 +1,223 @@
+<!Doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="MS-重庆">
+    <meta name="MS-王梧权" content="v-wuwa@microsoft.com">
+    <title>重庆通往全球的航班</title>
+
+    <link rel="shortcut icon" href="img/favicon.png">
+
+    <link rel="stylesheet" href="css/common.css">
+    <link rel="stylesheet" href="css/example.css">
+    <link rel="stylesheet" href="css/codemirror.css">
+    <link rel="stylesheet" href="css/monokai.css">
+    <link rel="stylesheet" href="css/twilight.css">
+	
+	<script src="js/d3.min.js"></script>
+	
+    <body>
+      
+        <main id="main" style = "top:0px">
+            <div id="chart" ></div>
+        </main>
+        <div id="editor">
+            <textarea></textarea>
+            <div id="editor-toolbar">
+                <button id="editor-update">Update</button>
+                <button id="editor-refresh">Refresh All</button>
+                <button id="editor-close">Close</button>
+            </div>
+        </div>
+
+<script type="text/x-javascript" id="code-source">
+
+
+d3.json("data/flights.json",function(error,data){
+	
+	
+	if(error) {
+		alert("some error");
+		 console.warn(error);
+	}
+	
+
+	    var markPointStyle = {
+            normal: {
+                color: 'red'
+            }
+        }
+        // Airport: [name, city, country, longitude, latitude]
+        var airports = data.airports.map(function (item) {
+            return {
+                itemStyle: markPointStyle,
+                geoCoord: [item[3], item[4]]
+            }
+        });
+
+        // Route: [airlineIndex, sourceAirportIndex, destinationAirportIndex]
+        var routesGroupByAirline = {};
+        data.routes.forEach(function (route) {
+            var airline = data.airlines[route[0]];
+            var airlineName = airline[0];
+            if (!routesGroupByAirline[airlineName]) {
+                routesGroupByAirline[airlineName] = [];
+            }
+            routesGroupByAirline[airlineName].push(route);
+        })
+
+		var airname = {
+			'Air France': '法国航空',
+			'easyJet':'英国易捷航空',
+			'Southwest Airlines':'美国西南航空',
+			'China Eastern Airlines':'中国东方航空',
+			'Air China':'中国航空',
+			'China Southern Airlines':'中国南方航空',
+			'US Airways':'美国全美航空',
+			'Delta Air Lines':'美国达美航空公司',
+			'United Airlines':'美国联合航空',
+			'American Airlines':'美国航空',
+			'Ryanair':'爱尔兰瑞安航空'
+		}
+		
+		var huanming = function(name){
+			return airname[name]?airname[name]:name
+		}
+			
+		
+        var opts = {
+            title: {
+                text: '重庆通往全球的航班情况',
+                subtext: 'Data from MS',
+                sublink: '',
+                x:'center',
+                y:'top',
+                textStyle: {
+                    color: 'white'
+                }
+            },
+            legend: {
+                show: true,
+                data: data.airlines.map(function (item) {
+                    // Airline name
+                    return 	huanming(item[0]);	//item[0];
+                }),
+                selected: {},
+                x: 'left',
+                orient: 'vertical',
+                textStyle: {
+                    color: 'white'
+                }
+            },
+            tooltip: {
+                formatter: '{b}'
+            },
+            series: [{
+                type: 'map3d',
+                mapType: 'world',
+                baseLayer: {
+                    backgroundColor: '',
+                    backgroundImage: 'asset/earth.jpg'
+                },
+				surfaceLayers: [{
+					type: 'texture',
+					distance: 3,
+					image: 'asset/clouds.png'
+				}],
+                itemStyle: {
+                    normal: {
+                        borderWidth: 1,
+                        borderColor: 'yellow',
+                        areaStyle: {
+                            color: 'rgba(0, 0, 0, 0)'
+                        }
+                    }
+                },
+                markPoint: {
+                    effect: {
+                        shadowBlur: 0.2
+                    },
+                    large: true,
+                    symbolSize: 3,
+                    data: airports
+                }
+            }]
+        };
+
+        opts.legend.data.forEach(function (name) {
+            if (name.indexOf(huanming('Air China')) >= 0) {
+                opts.legend.selected[name] = true;
+            } else {
+                opts.legend.selected[name] = false;
+            }
+        });
+
+        data.airlines.forEach(function (item) {
+            var airlineName = item[0];
+            var routes = routesGroupByAirline[airlineName];
+            if (routes) {
+                opts.series.push({
+                    type: 'map3d',
+                    name: huanming(airlineName),	//airlineName,
+                    markLine: {
+                        effect: {
+                            show: true
+                        },
+                        data: routes.map(function (item) {
+                            return [{
+                                // Source airport
+                                //geoCoord: airports[item[1]].geoCoord
+								geoCoord: [107,30]
+                            }, {
+                                // Destination Airport
+                                geoCoord: airports[item[2]].geoCoord
+                            }]
+                        })
+                    }
+                });
+				
+				opts.series.push({
+                    type: 'map3d',
+                    name: huanming(airlineName),	//airlineName,
+                    markLine: {
+                        effect: {
+                            show: true
+                        },
+                        data: routes.map(function (item) {
+                            return [{
+                                // Source airport
+                                geoCoord: airports[item[1]].geoCoord
+								
+                            }, {
+                                // Destination Airport
+                                //geoCoord: airports[item[2]].geoCoord
+								geoCoord: [107,30]
+                            }]
+                        })
+                    }
+                });
+            }
+        });
+
+        myChart.setOption(opts);
+	
+});
+
+</script>
+
+        <script src="lib/esl.js"></script>
+        <script src="lib/jquery.min.js"></script>
+        <script src="js/bootExample.js"></script>
+
+        <script>
+        if (document.location.href.indexOf('local') == -1) {
+            var _bdhmProtocol = (("https:" == document.location.protocol) ? " https://" : " http://");
+            document.write(unescape("%3Cscript src='" + _bdhmProtocol + "hm.baidu.com/h.js%3Fb78830c9a5dad062d08b90b2bc0cf5da' type='text/javascript'%3E%3C/script%3E"));   
+        }
+        </script>
+
+    </body>
+</head>
+</html>
